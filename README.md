@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Aplikasi monitoring trafik jaringan berbasis web yang sangat ringan, cepat, dan dilengkapi notifikasi WhatsApp.</strong><br>
-  Sangat cocok untuk RT/RW Net atau ISP skala kecil-menengah yang membutuhkan sistem pantau *real-time* tanpa konfigurasi yang rumit.
+  Sangat cocok untuk RT/RW Net atau ISP skala kecil-menengah yang membutuhkan sistem pantau *real-time* tanpa konfigurasi yang rumit. Dapat dijalankan di Linux maupun Windows!
 </p>
 
 ---
@@ -23,7 +23,6 @@ Pantau terus pergerakan *bandwidth* di jaringan Anda. MiksTraffic menyimpan data
 ### 🔌 Multi-Router & Multi-Interface
 Tidak terbatas hanya pada satu router. Anda bisa mengkoneksikan banyak router MikroTik sekaligus dalam satu *dashboard*.
 - Pilih *interface* mana saja yang ingin dipantau (WAN, Bridge, SFP, dll).
-- Informasi OLT Status terintegrasi.
 
 ![Dashboard](screenshots/dashboard.png)
 
@@ -48,74 +47,80 @@ Sistem *login* yang aman dengan kemampuan untuk menambah banyak akun administrat
 
 ## 🛠️ Prasyarat Sistem
 
-Aplikasi ini tidak membutuhkan spesifikasi *server* yang tinggi. Cukup dengan sistem operasi Linux standar:
-- **Web Server**: Nginx atau Apache
-- **PHP**: Versi 7.4 atau 8.x (Wajib memiliki ekstensi `sqlite3`, `curl`, dan `json`)
+Aplikasi ini tidak membutuhkan spesifikasi *server* yang tinggi dan **Bisa Berjalan di Windows maupun Linux**.
+
+### Untuk Linux (Ubuntu/Debian, dll):
+- **Web Server & PHP**: Nginx/Apache dan PHP 7.4/8.x (dengan ekstensi `sqlite3`, `curl`, `json`).
 - **PM2**: Dibutuhkan untuk menjalankan *background daemon* (Install via `npm install -g pm2`).
-- **Database**: SQLite (Bawaan PHP, tidak perlu *setup* MySQL/MariaDB).
+
+### Untuk Windows:
+- **XAMPP / Laragon**: Berfungsi sebagai penyedia Web Server (Apache) dan PHP. Sangat mudah digunakan! Pastikan ekstensi `pdo_sqlite` dan `curl` aktif di `php.ini`.
+- **Node.js**: Opsional, hanya dibutuhkan jika Anda ingin menggunakan PM2 di Windows. (Jika tidak ingin instal Node.js, Anda cukup meng-klik dua kali file `.bat` bawaan).
 
 ---
 
 ## 🚀 Panduan Instalasi (Deployment)
 
-### 1. Download & Ekstrak
+### 🐧 A. Instalasi di LINUX
+
+**1. Ekstrak File**
 Pindahkan seluruh isi repositori ini ke dalam direktori publik web server Anda (contoh: `/var/www/html/MRTG`).
 
-### 2. Atur Hak Akses (Permissions)
-Aplikasi ini membutuhkan hak tulis (*Write Permission*) pada folder `data` agar SQLite dapat membuat file database.
+**2. Atur Hak Akses (Permissions)**
+Aplikasi ini membutuhkan hak tulis pada folder `data` agar SQLite dapat bekerja:
 ```bash
 cd /var/www/html/MRTG
 sudo chmod -R 777 data
 ```
 
-### 3. Akses Dashboard Pertama Kali
-Buka alamat aplikasi di browser Anda (misal: `http://ip-server/MRTG`). Aplikasi akan melakukan *auto-migrate* dan membuat database kosongan yang siap digunakan.
-
-Gunakan kredensial bawaan berikut untuk masuk:
-> **Username**: `admin` <br>
-> **Password**: `admin123`
-
-*(⚠️ Sangat disarankan untuk langsung mengubah password ini di menu Settings setelah login!)*
-
-### 4. Menjalankan Perekam Data (Daemon)
-Agar aplikasi dapat terus merekam trafik setiap waktu dan menjalankan fungsi *checker* WhatsApp, Anda **wajib** menjalankan *background service* menggunakan **PM2**.
-
+**3. Menjalankan Perekam Data (Daemon)**
+Agar aplikasi dapat merekam trafik setiap waktu, jalankan *background service* dengan **PM2**:
 ```bash
-# Pastikan Anda berada di dalam folder MRTG
 cd /var/www/html/MRTG
-
-# Berikan hak eksekusi pada script bash
 chmod +x daemon_curl.sh
 chmod +x daemon_wa.sh
-
-# (OPSIONAL) Ubah variabel URL di dalam kedua file tersebut 
-# agar sesuai dengan IP atau Domain Anda jika diperlukan.
 
 # Jalankan daemon ke dalam PM2
 pm2 start bash --name mrtg-recorder -- daemon_curl.sh
 pm2 start bash --name mrtg-wa-checker -- daemon_wa.sh
-
-# Simpan state PM2 agar berjalan otomatis saat server restart
 pm2 save
 pm2 startup
 ```
 
 ---
 
-## ⚙️ Pengaturan Notifikasi WhatsApp
-Untuk mengaktifkan fitur WhatsApp Alert:
-1. Pergi ke menu **Settings** di Admin Panel.
-2. Pada bagian WhatsApp Notifications, masukkan:
-   - **Baileys API URL**: Endpoint API pengirim pesan Anda.
-   - **Target Phone Number**: Nomor WA tujuan lengkap dengan kode negara (contoh: `62812...`).
-   - **Traffic Threshold**: Batas bawah trafik dalam Mbps.
-   - **Check Interval**: Jarak antar pengecekan dalam menit.
+### 🪟 B. Instalasi Mudah di WINDOWS (Standalone)
+
+Kabar baik untuk pengguna Windows! Anda tidak perlu repot *setting* XAMPP/Laragon atau instalasi PM2. Saya sudah menyediakan sistem *Standalone* (Mandiri) menggunakan server bawaan PHP. Syaratnya: Komputer Anda hanya perlu terinstal PHP (bisa bawaan XAMPP atau *download* manual PHP for Windows) dan didaftarkan ke *Environment Variables* (Path).
+
+**Langkah Menjalankan di Windows:**
+1. Ekstrak folder `MRTG` di mana saja (misalnya di Desktop atau `D:\`).
+2. Masuk ke dalam folder **`run_windows`**.
+3. **Mulai Server Utama:** Klik dua kali file **`1_start_server.bat`**. Sebuah jendela CMD akan terbuka, dan browser Anda akan otomatis membuka halaman `http://localhost:8888`. Biarkan jendela CMD tersebut tetap terbuka.
+4. **Mulai Daemon Perekam:** Klik dua kali file **`2_start_daemons_hidden.vbs`**. File ini akan menjalankan perekam grafik dan pengecek WhatsApp di *Latar Belakang* (Background) secara gaib tanpa menampilkan jendela hitam apa pun! Jauh lebih rapi.
+5. **Selesai!** Aplikasi Anda sudah berjalan sempurna.
+
+*(Jika Anda ingin mematikan daemon yang berjalan di latar belakang tersebut, cukup klik file `3_stop_all_hidden_daemons.bat`).*
 
 ---
 
-## 💡 Troubleshooting
-- **Grafik Tidak Bergerak**: Pastikan `mrtg-recorder` berjalan di PM2. Cek dengan perintah `pm2 logs mrtg-recorder`.
-- **Tidak Bisa Login**: Periksa kembali hak akses `chmod 777` pada folder `data`.
+## ⚙️ Langkah Lanjutan (Untuk Semua OS)
+
+### Akses Dashboard Pertama Kali
+Buka aplikasi di browser Anda: `http://localhost/MRTG` (atau IP server Anda). Aplikasi akan otomatis membuat database baru dan menyiapkan satu akun administrator.
+
+Kredensial bawaan:
+> **Username**: `admin` <br>
+> **Password**: `admin123`
+
+*(⚠️ Ganti password ini melalui menu Settings setelah login!)*
+
+### Pengaturan Notifikasi WhatsApp
+Untuk mengaktifkan fitur WhatsApp Alert:
+1. Pergi ke menu **Settings** di Admin Panel.
+2. Masukkan URL API Baileys Anda.
+3. Masukkan Target Phone Number (contoh: `62812...`).
+4. Setel batas batas bawah trafik (Threshold) dalam hitungan Mbps dan Interval waktu.
 
 ---
 <p align="center">
