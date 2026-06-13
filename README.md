@@ -27,6 +27,12 @@ Tidak terbatas hanya pada satu router. Anda bisa mengkoneksikan banyak router Mi
 
 ![Dashboard](screenshots/dashboard.png)
 
+### 🏢 OLT Status Monitor
+Selain router, Anda juga bisa memantau status perangkat OLT (Optical Line Terminal) di seluruh jaringan Anda.
+- Pantau jumlah total pelanggan, pelanggan *online*, sinyal lemah (*low*), dan *offline*.
+
+![OLT Monitor](screenshots/olt_monitor.png)
+
 ### 📲 WhatsApp Alert Notifications (Baileys)
 Dapatkan peringatan seketika saat trafik jaringan Anda anjlok atau putus!
 - Notifikasi dikirim otomatis via API WhatsApp Baileys.
